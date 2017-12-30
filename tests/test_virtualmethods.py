@@ -291,6 +291,16 @@ class Z(Y):
         return [Z.__call__]
 
 
+class ExternalA(object):
+    __metaclass__ = virtual_methods(default=NON_VIRTUAL)
+
+    def non_virtual_fun1(self):
+        return [ExternalA.non_virtual_fun1]
+
+    def non_virtual_fun2(self, external_object):
+        return [ExternalA.non_virtual_fun2] + external_object.non_virtual_fun1()
+
+
 # tests for default NON-VIRTUAL methods
 
 def test_regular_method_call():
@@ -403,3 +413,10 @@ def test_virtual_property_setting():
             Y,
             X.set_secret,
             X] == lst
+
+
+def test_calling_from_external():
+    instance = A()
+    external_instance = ExternalA()
+    assert [ExternalA.non_virtual_fun2,
+            A.non_virtual_fun1] == external_instance.non_virtual_fun2(instance)

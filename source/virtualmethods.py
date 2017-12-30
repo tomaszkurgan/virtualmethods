@@ -1,7 +1,7 @@
-"""Bring non-virtual attributes into Python environment.
+"""Brings non-virtual attributes into Python environment.
 
-In Python world, all attributes are indeed virtual, but there are
-some cases, where this behaviour is undesired and C++ish behaviour
+In Python world, all attributes are virtual by default, but there are
+some cases, when this behaviour is undesired and C++ish behaviour
 is more suitable.
 In such cases, this module will save the day.
 """
@@ -77,7 +77,7 @@ def _implement_getattribute(cls):
         caller = _guess_caller()
         caller_class = _guess_owner_class(caller)
 
-        if not caller_class:
+        if not caller_class or not issubclass(type(self), caller_class):
             return super(cls, self).__getattribute__(attr_name)
 
         try:
@@ -103,7 +103,7 @@ def _implement_setattr(cls):
         caller = _guess_caller()
         caller_class = _guess_owner_class(caller)
 
-        if not caller_class:
+        if not caller_class or not issubclass(type(self), caller_class):
             return super(cls, self).__setattr__(key, value)
 
         try:
@@ -123,7 +123,7 @@ def _implement_magic_function(magic_function):
         caller = _guess_caller()
         caller_class = _guess_owner_class(caller)
 
-        if not caller_class:
+        if not caller_class or not issubclass(type(self), caller_class):
             return magic_function(self, *args, **kwargs)
 
         if caller.__name__ == magic_function.__name__:
